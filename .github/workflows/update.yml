@@ -2,36 +2,32 @@ name: Auto Update Rust Skinport HTML
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
-  workflow_dispatch:
+    - cron: "*/30 * * * *"  # 每30分钟自动执行
+  workflow_dispatch:        # 手动触发支持
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
 
-    - name: Install dependencies
-      run: pip install requests
+      - name: Install dependencies
+        run: pip install requests
 
-    - name: Run scraper script
-      run: python skinport_rust_all_scraper.py
+      - name: Run scrape script
+        run: python skinport_steam_scraper.py
 
-    - name: Commit and push changes
-      run: |
-        git config user.name "github-actions[bot]"
-        git config user.email "github-actions[bot]@users.noreply.github.com"
-        git add rust_skinport_all.html
-        git commit -m "Auto update Rust skin data"
-        git push
-        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-        git add rust_skin_data.html || true
-        git commit -m "Auto update skin data" || echo "No changes to commit"
-        git push
+      - name: Commit and push changes
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add index.html
+          git commit -m "Auto update index.html" || echo "No changes to commit"
+          git push
