@@ -1,13 +1,91 @@
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rust 饰品价格对比</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Rust 饰品价格对比</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f8f9fa; }
+        h1, h2 { color: #333; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+        th { background-color: #e9ecef; }
+        .currency-toggle { margin-bottom: 10px; }
+        .footer { margin-top: 20px; font-size: 12px; color: #888; }
+    </style>
 </head>
 <body>
-  <h2>Rust Skinport 港币售价与 Steam 人民币买单/卖单差价对比</h2>
-  <p>页面数据每 30 分钟自动更新，货币单位可切换。</p>
-  <!-- 数据表格稍后由脚本生成插入 -->
+    <h1>Rust Skinport 港币价格 vs Steam 人民币/美元价格</h1>
+    <div class="currency-toggle">
+        <label>切换货币：
+            <select id="currency" onchange="toggleCurrency()">
+                <option value="cny">人民币</option>
+                <option value="usd">美元</option>
+            </select>
+        </label>
+    </div>
+    <table id="priceTable">
+        <thead>
+            <tr>
+                <th>饰品名称</th>
+                <th>Skinport 售价（HKD）</th>
+                <th>Steam 最低价</th>
+                <th>Steam 买单价</th>
+                <th>利润（CNY）</th>
+                <th>图片</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <!-- JS插入数据 -->
+        </tbody>
+    </table>
+    <div class="footer">数据每30分钟自动更新，利润计算公式：Skinport 港币 × 0.88 × 港币兑人民币汇率 - Steam 人民币进货价</div>
+    <script>
+        const exchangeRateHKDToCNY = 0.938;
+        const steamData = [
+            {
+                name: "Glory AK47",
+                skinportPriceHKD: 200,
+                steamBuyPriceCNY: 100,
+                steamSellPriceCNY: 110,
+                img: "https://community.akamai.steamstatic.com/economy/image/xxxx"
+            },
+            {
+                name: "Tempered Mask",
+                skinportPriceHKD: 120,
+                steamBuyPriceCNY: 60,
+                steamSellPriceCNY: 70,
+                img: "https://community.akamai.steamstatic.com/economy/image/yyyy"
+            }
+        ];
+
+        function renderTable(currency = 'cny') {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            steamData.forEach(item => {
+                const incomeCNY = item.skinportPriceHKD * 0.88 * exchangeRateHKDToCNY;
+                const profit = incomeCNY - item.steamBuyPriceCNY;
+                const steamPrice = currency === 'usd' ? (item.steamSellPriceCNY / 7.2).toFixed(2) + " USD" : item.steamSellPriceCNY + " 元";
+                const buyOrder = currency === 'usd' ? (item.steamBuyPriceCNY / 7.2).toFixed(2) + " USD" : item.steamBuyPriceCNY + " 元";
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>HK$${item.skinportPriceHKD.toFixed(2)}</td>
+                        <td>${steamPrice}</td>
+                        <td>${buyOrder}</td>
+                        <td>${profit.toFixed(2)} 元</td>
+                        <td><img src="${item.img}" width="60"></td>
+                    </tr>`;
+            });
+        }
+
+        function toggleCurrency() {
+            const selected = document.getElementById('currency').value;
+            renderTable(selected);
+        }
+
+        window.onload = () => renderTable();
+    </script>
 </body>
 </html>
