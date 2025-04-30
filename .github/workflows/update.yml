@@ -1,33 +1,36 @@
-name: Update Rust Skin Data
+name: Auto Update Rust Skinport HTML
 
 on:
   schedule:
-    - cron: '0 */12 * * *'  # 每12小时运行一次
-  workflow_dispatch:       # 可手动运行
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.x'
 
     - name: Install dependencies
-      run: |
-        pip install requests beautifulsoup4
+      run: pip install requests
 
-    - name: Run scraper
-      run: python skinport_scraper.py
+    - name: Run scraper script
+      run: python skinport_rust_all_scraper.py
 
-    - name: Commit and push if changed
+    - name: Commit and push changes
       run: |
         git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add rust_skinport_all.html
+        git commit -m "Auto update Rust skin data"
+        git push
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git add rust_skin_data.html || true
         git commit -m "Auto update skin data" || echo "No changes to commit"
